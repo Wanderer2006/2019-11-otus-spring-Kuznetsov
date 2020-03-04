@@ -29,7 +29,7 @@ public class VisitorServiceImpl implements VisitorService {
 
     @Override
     public void deleteVisitorById(Long id) {
-        if (visitorDao.existRelationById(id)) {
+        if (visitorDao.existBookAtVisitor(id)) {
             io.println("Нельзя удалить Посетителя, у которого на руках книги. Сначала сдайте книги в библиотеку");
         } else {
             try {

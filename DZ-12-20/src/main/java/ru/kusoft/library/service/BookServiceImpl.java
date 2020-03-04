@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.kusoft.library.dao.*;
+import ru.kusoft.library.dao.ext.Relation;
 import ru.kusoft.library.domain.*;
 
 import java.util.List;
@@ -71,7 +72,7 @@ public class BookServiceImpl implements BookService {
     public void deleteBookById(Long id) {
         if (!bookDao.existById(id)) {
             io.println("Номер книги не найден");
-        } else if (visitorDao.existRelationByBookId(id)) {
+        } else if (visitorDao.existVisitorWithBook(id)) {
             io.println("Книгу удалить нельзя, она находится на руках у Посетителей");
         } else {
             try {
@@ -86,7 +87,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public void giveOutBook(Relation relation) {
         Book book = bookDao.getById(relation.getRightId());
-        if (book.getCopies() == visitorDao.countRelationByBookId(relation.getRightId())) {
+        if (book.getCopies() == visitorDao.countVisitorWithBook(relation.getRightId())) {
             io.println("Выдать книгу нельзя. Все доступные экземпляры на руках у Посетителей.");
         } else {
             Visitor visitor = visitorDao.getById(relation.getLeftId());
@@ -94,7 +95,7 @@ public class BookServiceImpl implements BookService {
                 io.println("Выдать книгу нельзя. Возраст посетителя меньше доступного для данной книги.");
             } else {
                 try {
-                    visitorDao.insertRelation(book.getBookId(), visitor.getVisitorId());
+                    visitorDao.addBookForVisitor(book.getBookId(), visitor.getVisitorId());
                     io.println("Книга выдана Посетителю.");
                 } catch (DataAccessException e) {
                     io.println("Не удалось выдать книгу");
@@ -106,7 +107,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public void returnBook(Relation relation) {
         long bookId = relation.getRightId();
-        if (!visitorDao.existRelationByBookId(bookId)) {
+        if (!visitorDao.existVisitorWithBook(bookId)) {
             io.println("Все доступные экземпляры данной книги находятся в библиотеке. " +
                     "Если вы дарите книгу библиотеке, то воспользуйтесь командой add-book");
         } else {
@@ -119,7 +120,7 @@ public class BookServiceImpl implements BookService {
                 io.println("Данному посетителю эта книга ранее не выдавалась.");
             } else {
                 try {
-                    visitorDao.deleteRelation(bookId, visitor.getVisitorId());
+                    visitorDao.deleteBookForVisitor(bookId, visitor.getVisitorId());
                     io.println("Книга возвращена в библиотеку.");
                 } catch (DataAccessException e) {
                     io.println("Не удалось вернуть книгу");

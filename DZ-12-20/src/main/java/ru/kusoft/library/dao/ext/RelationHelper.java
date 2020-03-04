@@ -1,13 +1,10 @@
-package ru.kusoft.library.dao;
+package ru.kusoft.library.dao.ext;
 
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.stereotype.Repository;
-import ru.kusoft.library.domain.Relation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,23 +13,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Repository
-@RequiredArgsConstructor
+@Data
 @Scope("prototype")
-public class RelationDaoJdbc implements RelationDao {
+public class RelationHelper {
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    @Setter
-    private String nameRelationTable;
+    private final String nameRelationTable;
 
-    @Override
     public long count() {
         return namedParameterJdbcOperations.queryForObject(
                 "select count(*) from " + nameRelationTable, new HashMap<>(0), Long.class
         );
     }
 
-    @Override
     public long countByLeftId(long id) {
         Map<String, Object> params = Collections.singletonMap("id", id);
         return namedParameterJdbcOperations.queryForObject(
@@ -40,7 +33,6 @@ public class RelationDaoJdbc implements RelationDao {
         );
     }
 
-    @Override
     public long countByRightId(long id) {
         Map<String, Object> params = Collections.singletonMap("id", id);
         return namedParameterJdbcOperations.queryForObject(
@@ -48,7 +40,6 @@ public class RelationDaoJdbc implements RelationDao {
         );
     }
 
-    @Override
     public void insert(Relation relation) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("left_id", relation.getLeftId());
@@ -58,7 +49,6 @@ public class RelationDaoJdbc implements RelationDao {
         );
     }
 
-    @Override
     public Relation getByLeftId(long id) {
         Map<String, Object> params = Collections.singletonMap("id", id);
         return namedParameterJdbcOperations.queryForObject(
@@ -66,7 +56,6 @@ public class RelationDaoJdbc implements RelationDao {
         );
     }
 
-    @Override
     public Relation getByRightId(long id) {
         Map<String, Object> params = Collections.singletonMap("id", id);
         return namedParameterJdbcOperations.queryForObject(
@@ -74,14 +63,12 @@ public class RelationDaoJdbc implements RelationDao {
         );
     }
 
-    @Override
     public List<Relation> getAll() {
         return namedParameterJdbcOperations.query(
                 "select * from " + nameRelationTable, new HashMap<>(0), new RelationMapper()
         );
     }
 
-    @Override
     public void delete(Relation relation) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("left_id", relation.getLeftId());

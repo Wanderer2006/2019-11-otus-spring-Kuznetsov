@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.kusoft.library.dao.ext.Relation;
 import ru.kusoft.library.domain.*;
 
 import java.sql.ResultSet;
@@ -43,8 +44,8 @@ public class BookDaoJdbc implements BookDao {
                 "insert into books (title, copies, publisher_id, year_publishing, printing, age_limit) " +
                         "values (:title, :copies, :publisher_id, :year_publishing, :printing, :age_limit)", ps, kh
         );
-        book.getAuthors().forEach(a -> authorDao.insertRelation((long) kh.getKey(), a.getAuthorId()));
-        book.getGenres().forEach(g -> genreDao.insertRelation((long) kh.getKey(), g.getGenreId()));
+        book.getAuthors().forEach(a -> addAuthorForBook((long) kh.getKey(), a.getAuthorId()));
+        book.getGenres().forEach(g -> addGenreForBook((long) kh.getKey(), g.getGenreId()));
         return (long) kh.getKey();
     }
 
@@ -128,6 +129,26 @@ public class BookDaoJdbc implements BookDao {
         namedParameterJdbcOperations.update(
                 "delete from books where book_id = :id", params
         );
+    }
+
+    @Override
+    public void addAuthorForBook(long bookId, long authorId) {
+        authorDao.getBookAuthorRelation().insert(new Relation(bookId, authorId));
+    }
+
+    @Override
+    public void deleteAuthorForBook(long bookId, long authorId) {
+        authorDao.getBookAuthorRelation().delete(new Relation(bookId, authorId));
+    }
+
+    @Override
+    public void addGenreForBook(long bookId, long genreId) {
+        genreDao.getBookGenreRelation().insert(new Relation(bookId, genreId));
+    }
+
+    @Override
+    public void deleteGenreForBook(long bookId, long genreId) {
+        genreDao.getBookGenreRelation().delete(new Relation(bookId, genreId));
     }
 
     private static class BookMapper implements RowMapper<Book> {

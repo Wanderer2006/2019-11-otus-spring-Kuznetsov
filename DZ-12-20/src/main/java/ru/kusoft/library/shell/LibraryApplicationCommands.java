@@ -5,7 +5,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.kusoft.library.domain.Relation;
+import ru.kusoft.library.dao.ext.Relation;
 import ru.kusoft.library.events.*;
 import ru.kusoft.library.service.IOService;
 

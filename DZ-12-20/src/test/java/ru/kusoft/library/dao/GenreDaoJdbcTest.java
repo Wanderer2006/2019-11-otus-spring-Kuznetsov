@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Репозиторий на основе Jdbc для работы с жанрами должен ")
 @JdbcTest
-@Import({GenreDaoJdbc.class, RelationDaoJdbc.class})
+@Import({GenreDaoJdbc.class})
 class GenreDaoJdbcTest {
 
     private static final int EXPECTED_GENRES_COUNT = 6;
@@ -24,9 +24,6 @@ class GenreDaoJdbcTest {
     private static final long LINKED_BOOK_ID = 5L;
     private static final int EXPECTED_LINKED_GENRES_COUNT = 2;
     private static final int EXPECTED_RELATIONS_COUNT = 22;
-    private static final long GENRE_ID_FOR_NEW_RELATION = 6L;
-    private static final long BOOK_ID_FOR_NEW_RELATION = 12L;
-    private static final long BOOK_ID_FOR_DELETE_RELATION = 10L;
 
     @Autowired
     private GenreDaoJdbc jdbc;
@@ -131,28 +128,8 @@ class GenreDaoJdbcTest {
     @DisplayName("подтверждать наличие связей жанра по его id с книгами в таблице book_genre")
     @Test
     void shouldReturnSignExistenceRelationByGenreId() {
-        val actual = jdbc.existRelationById(DEFAULT_GENRE_ID);
+        val actual = jdbc.existBooksForGenre(DEFAULT_GENRE_ID);
         assertThat(actual).isTrue();
-    }
-
-    @DisplayName("добавлять связь между жанром и книгой в таблицу book_genre")
-    @Test
-    void shouldAddRelationByBookIdAndGenreId() {
-        val current = jdbc.existRelationById(GENRE_ID_FOR_NEW_RELATION);
-        assertThat(current).isFalse();
-        jdbc.insertRelation(BOOK_ID_FOR_NEW_RELATION, GENRE_ID_FOR_NEW_RELATION);
-        val actual = jdbc.existRelationById(GENRE_ID_FOR_NEW_RELATION);
-        assertThat(actual).isTrue();
-    }
-
-    @DisplayName("удалять связь между жанром и книгой в таблице book_genre")
-    @Test
-    void shouldDeleteRelationByBookIdAndGenreId() {
-        val current = jdbc.existRelationById(DEFAULT_GENRE_ID);
-        assertThat(current).isTrue();
-        jdbc.deleteRelation(BOOK_ID_FOR_DELETE_RELATION, DEFAULT_GENRE_ID);
-        val actual = jdbc.existRelationById(DEFAULT_GENRE_ID);
-        assertThat(actual).isFalse();
     }
 
 }

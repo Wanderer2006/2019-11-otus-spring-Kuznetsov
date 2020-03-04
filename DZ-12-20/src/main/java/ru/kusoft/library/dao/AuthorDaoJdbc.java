@@ -1,13 +1,15 @@
 package ru.kusoft.library.dao;
 
+import lombok.Getter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Author;
-import ru.kusoft.library.domain.Relation;
+import ru.kusoft.library.dao.ext.Relation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,16 +19,18 @@ import java.util.Map;
 
 import static org.apache.logging.log4j.util.Strings.isNotBlank;
 
+
 @Repository
 public class AuthorDaoJdbc implements AuthorDao {
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final RelationDao bookAuthorRelation;
 
-    public AuthorDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations, RelationDao bookAuthorRelation) {
+    @Getter
+    private final RelationHelper bookAuthorRelation;
+
+    public AuthorDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations) {
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.bookAuthorRelation = bookAuthorRelation;
-        this.bookAuthorRelation.setNameRelationTable("book_author");
+        this.bookAuthorRelation = new RelationHelper(namedParameterJdbcOperations, "book_author");
     }
 
     @Override
@@ -139,18 +143,8 @@ public class AuthorDaoJdbc implements AuthorDao {
     }
 
     @Override
-    public boolean existRelationById(long id) {
+    public boolean existBooksForAuthor(long id) {
         return bookAuthorRelation.countByRightId(id) > 0;
-    }
-
-    @Override
-    public void insertRelation(long bookId, long authorId) {
-        bookAuthorRelation.insert(new Relation(bookId, authorId));
-    }
-
-    @Override
-    public void deleteRelation(long bookId, long authorId) {
-        bookAuthorRelation.delete(new Relation(bookId, authorId));
     }
 
     private static class AuthorMapper implements RowMapper<Author> {

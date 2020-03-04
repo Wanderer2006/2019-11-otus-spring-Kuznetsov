@@ -1,13 +1,15 @@
 package ru.kusoft.library.dao;
 
+import lombok.Getter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Genre;
-import ru.kusoft.library.domain.Relation;
+import ru.kusoft.library.dao.ext.Relation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,12 +21,13 @@ import java.util.Map;
 public class GenreDaoJdbc implements GenreDao {
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final RelationDao bookGenreRelation;
 
-    public GenreDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations, RelationDao bookGenreRelation) {
+    @Getter
+    private final RelationHelper bookGenreRelation;
+
+    public GenreDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations) {
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.bookGenreRelation = bookGenreRelation;
-        this.bookGenreRelation.setNameRelationTable("book_genre");
+        this.bookGenreRelation = new RelationHelper(namedParameterJdbcOperations, "book_genre");
     }
 
     @Override
@@ -116,18 +119,8 @@ public class GenreDaoJdbc implements GenreDao {
     }
 
     @Override
-    public boolean existRelationById(long id) {
+    public boolean existBooksForGenre(long id) {
         return bookGenreRelation.countByRightId(id) > 0;
-    }
-
-    @Override
-    public void insertRelation(long bookId, long genreId) {
-        bookGenreRelation.insert(new Relation(bookId, genreId));
-    }
-
-    @Override
-    public void deleteRelation(long bookId, long genreId) {
-        bookGenreRelation.delete(new Relation(bookId, genreId));
     }
 
     private static class GenreMapper implements RowMapper<Genre> {

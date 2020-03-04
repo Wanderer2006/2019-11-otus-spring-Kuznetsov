@@ -21,4 +21,16 @@ public interface BookDao {
     List<Book> getAllFullInfo();
 
     void deleteById(long id);
+
+    AuthorDao getAuthorDao();
+
+    void addAuthorForBook(long bookId, long authorId);
+
+    void deleteAuthorForBook(long bookId, long authorId);
+
+    GenreDao getGenreDao();
+
+    void addGenreForBook(long bookId, long genreId);
+
+    void deleteGenreForBook(long bookId, long genreId);
 }

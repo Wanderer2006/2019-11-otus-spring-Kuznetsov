@@ -1,4 +1,4 @@
-package ru.kusoft.library.domain;
+package ru.kusoft.library.dao.ext;
 
 import lombok.Data;
 

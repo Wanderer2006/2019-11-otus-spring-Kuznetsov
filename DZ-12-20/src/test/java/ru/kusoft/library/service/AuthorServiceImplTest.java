@@ -86,9 +86,9 @@ class AuthorServiceImplTest {
     @DisplayName("вызывать методы authorDao и io с нужными параметрами. Текущий метод: deleteAuthorById " +
             "(id автора привязан к книге)")
     void shouldNotDeleteLibraryBookAuthorById() {
-        given(authorDao.existRelationById(anyLong())).willReturn(true);
+        given(authorDao.existBooksForAuthor(anyLong())).willReturn(true);
         authorService.deleteAuthorById(100L);
-        verify(authorDao, times(1)).existRelationById(100L);
+        verify(authorDao, times(1)).existBooksForAuthor(100L);
         verify(io, times(1)).println(anyString());
         verify(authorDao, times(0)).deleteById(100L);
     }
@@ -97,9 +97,9 @@ class AuthorServiceImplTest {
     @DisplayName("вызывать методы authorDao и io с нужными параметрами. Текущий метод: deleteAuthorById " +
             "(id автора не привязан к книге)")
     void shouldDeleteUnattachedAuthorById() {
-        given(authorDao.existRelationById(anyLong())).willReturn(false);
+        given(authorDao.existBooksForAuthor(anyLong())).willReturn(false);
         authorService.deleteAuthorById(100L);
-        verify(authorDao, times(1)).existRelationById(100L);
+        verify(authorDao, times(1)).existBooksForAuthor(100L);
         verify(io, times(1)).println(anyString());
         verify(authorDao, times(1)).deleteById(100L);
     }

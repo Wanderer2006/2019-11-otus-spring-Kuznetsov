@@ -29,7 +29,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public void deleteGenreById(Long id) {
-        if (genreDao.existRelationById(id)) {
+        if (genreDao.existBooksForGenre(id)) {
             io.println("Нельзя удалить жанр книги, принадлежащей библиотеке. Сначала удалите книгу");
         } else {
             try {

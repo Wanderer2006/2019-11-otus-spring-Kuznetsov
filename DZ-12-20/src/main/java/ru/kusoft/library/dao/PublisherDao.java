@@ -1,6 +1,5 @@
 package ru.kusoft.library.dao;
 
-import ru.kusoft.library.domain.Book;
 import ru.kusoft.library.domain.Publisher;
 
 import java.util.List;

@@ -78,9 +78,9 @@ class GenreServiceImplTest {
     @DisplayName("вызывать методы genreDao и io с нужными параметрами. Текущий метод: deleteGenreById " +
             "(id жанра привязан к книге)")
     void shouldNotDeleteLibraryBookGenreById() {
-        given(genreDao.existRelationById(anyLong())).willReturn(true);
+        given(genreDao.existBooksForGenre(anyLong())).willReturn(true);
         genreService.deleteGenreById(100L);
-        verify(genreDao, times(1)).existRelationById(100L);
+        verify(genreDao, times(1)).existBooksForGenre(100L);
         verify(io, times(1)).println(anyString());
         verify(genreDao, times(0)).deleteById(100L);
     }
@@ -89,9 +89,9 @@ class GenreServiceImplTest {
     @DisplayName("вызывать методы genreDao и io с нужными параметрами. Текущий метод: deleteGenreById " +
             "(id жанра не привязан к книге)")
     void shouldDeleteUnattachedGenreById() {
-        given(genreDao.existRelationById(anyLong())).willReturn(false);
+        given(genreDao.existBooksForGenre(anyLong())).willReturn(false);
         genreService.deleteGenreById(100L);
-        verify(genreDao, times(1)).existRelationById(100L);
+        verify(genreDao, times(1)).existBooksForGenre(100L);
         verify(genreDao, times(1)).deleteById(100L);
         verify(io, times(1)).println(anyString());
     }

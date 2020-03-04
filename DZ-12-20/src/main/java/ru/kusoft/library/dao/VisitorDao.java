@@ -1,7 +1,6 @@
 package ru.kusoft.library.dao;
 
-import ru.kusoft.library.domain.Author;
-import ru.kusoft.library.domain.Relation;
+import ru.kusoft.library.dao.ext.Relation;
 import ru.kusoft.library.domain.Visitor;
 
 import java.util.List;
@@ -30,15 +29,15 @@ public interface VisitorDao {
 
     List<Relation> getAllRelations();
 
-    long countRelationById(long id);
+    long countBookAtVisitor(long id);
 
-    boolean existRelationById(long id);
+    boolean existBookAtVisitor(long id);
 
-    long countRelationByBookId(long id);
+    long countVisitorWithBook(long id);
 
-    boolean existRelationByBookId(long id);
+    boolean existVisitorWithBook(long id);
 
-    void insertRelation(long bookId, long visitorId);
+    void addBookForVisitor(long bookId, long visitorId);
 
-    void deleteRelation(long bookId, long visitorId);
+    void deleteBookForVisitor(long bookId, long visitorId);
 }

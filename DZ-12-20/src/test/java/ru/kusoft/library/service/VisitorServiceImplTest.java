@@ -85,9 +85,9 @@ class VisitorServiceImplTest {
     @DisplayName("вызывать методы visitorDao и io с нужными параметрами. Текущий метод: deleteVisitorById " +
             "(id посетителя привязан к книге)")
     void shouldNotDeleteLibraryBookVisitorById() {
-        given(visitorDao.existRelationById(anyLong())).willReturn(true);
+        given(visitorDao.existBookAtVisitor(anyLong())).willReturn(true);
         visitorService.deleteVisitorById(100L);
-        verify(visitorDao, times(1)).existRelationById(100L);
+        verify(visitorDao, times(1)).existBookAtVisitor(100L);
         verify(io, times(1)).println(anyString());
         verify(visitorDao, times(0)).deleteById(100L);
     }
@@ -96,9 +96,9 @@ class VisitorServiceImplTest {
     @DisplayName("вызывать методы visitorDao и io с нужными параметрами. Текущий метод: deleteVisitorById " +
             "(id посетителя не привязан к книге)")
     void shouldDeleteUnattachedVisitorById() {
-        given(visitorDao.existRelationById(anyLong())).willReturn(false);
+        given(visitorDao.existBookAtVisitor(anyLong())).willReturn(false);
         visitorService.deleteVisitorById(100L);
-        verify(visitorDao, times(1)).existRelationById(100L);
+        verify(visitorDao, times(1)).existBookAtVisitor(100L);
         verify(io, times(1)).println(anyString());
         verify(visitorDao, times(1)).deleteById(100L);
     }

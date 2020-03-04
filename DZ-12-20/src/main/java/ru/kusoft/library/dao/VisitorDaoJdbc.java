@@ -6,7 +6,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.kusoft.library.domain.Relation;
+import ru.kusoft.library.dao.ext.Relation;
+import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Visitor;
 
 import java.sql.ResultSet;
@@ -19,12 +20,11 @@ import java.util.Map;
 public class VisitorDaoJdbc implements VisitorDao {
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final RelationDao visitorBookRelation;
+    private final RelationHelper visitorBookRelation;
 
-    public VisitorDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations, RelationDao visitorBookRelation) {
+    public VisitorDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations) {
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.visitorBookRelation = visitorBookRelation;
-        this.visitorBookRelation.setNameRelationTable("visitor_book");
+        this.visitorBookRelation = new RelationHelper(namedParameterJdbcOperations, "visitor_book");
     }
 
     @Override
@@ -133,32 +133,32 @@ public class VisitorDaoJdbc implements VisitorDao {
     }
 
     @Override
-    public long countRelationById(long id) {
+    public long countBookAtVisitor(long id) {
         return visitorBookRelation.countByLeftId(id);
     }
 
     @Override
-    public boolean existRelationById(long id) {
-        return countRelationById(id) > 0;
+    public boolean existBookAtVisitor(long id) {
+        return countBookAtVisitor(id) > 0;
     }
 
     @Override
-    public long countRelationByBookId(long id) {
+    public long countVisitorWithBook(long id) {
         return visitorBookRelation.countByRightId(id);
     }
 
     @Override
-    public boolean existRelationByBookId(long id) {
-        return countRelationByBookId(id) > 0;
+    public boolean existVisitorWithBook(long id) {
+        return countVisitorWithBook(id) > 0;
     }
 
     @Override
-    public void insertRelation(long bookId, long visitorId) {
+    public void addBookForVisitor(long bookId, long visitorId) {
         visitorBookRelation.insert(new Relation(visitorId, bookId));
     }
 
     @Override
-    public void deleteRelation(long bookId, long visitorId) {
+    public void deleteBookForVisitor(long bookId, long visitorId) {
         visitorBookRelation.delete(new Relation(visitorId, bookId));
     }
 

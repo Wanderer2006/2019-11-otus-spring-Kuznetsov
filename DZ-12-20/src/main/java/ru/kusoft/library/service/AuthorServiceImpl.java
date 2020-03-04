@@ -33,7 +33,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public void deleteAuthorById(Long id) {
-        if (authorDao.existRelationById(id)) {
+        if (authorDao.existBooksForAuthor(id)) {
             io.println("Нельзя удалить автора книги, принадлежащей библиотеке. Сначала удалите книгу");
         } else {
             try {

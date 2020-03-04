@@ -1,7 +1,8 @@
 package ru.kusoft.library.dao;
 
+import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Author;
-import ru.kusoft.library.domain.Relation;
+import ru.kusoft.library.dao.ext.Relation;
 
 import java.util.List;
 
@@ -29,9 +30,7 @@ public interface AuthorDao {
 
     List<Relation> getAllRelations();
 
-    boolean existRelationById(long id);
+    boolean existBooksForAuthor(long id);
 
-    void insertRelation(long bookId, long authorId);
-
-    void deleteRelation(long bookId, long authorId);
+    RelationHelper getBookAuthorRelation();
 }

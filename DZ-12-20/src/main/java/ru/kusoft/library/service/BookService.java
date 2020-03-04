@@ -1,6 +1,6 @@
 package ru.kusoft.library.service;
 
-import ru.kusoft.library.domain.Relation;
+import ru.kusoft.library.dao.ext.Relation;
 
 public interface BookService {
 

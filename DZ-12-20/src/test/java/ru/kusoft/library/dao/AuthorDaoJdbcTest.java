@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Репозиторий на основе Jdbc для работы с авторами должен ")
 @JdbcTest
-@Import({AuthorDaoJdbc.class, RelationDaoJdbc.class})
+@Import({AuthorDaoJdbc.class})
 class AuthorDaoJdbcTest {
 
     private static final int EXPECTED_AUTHORS_COUNT = 8;
@@ -30,10 +30,6 @@ class AuthorDaoJdbcTest {
     private static final long LINKED_BOOK_ID = 2L;
     private static final int EXPECTED_LINKED_AUTHORS_COUNT = 2;
     private static final int EXPECTED_RELATIONS_COUNT = 12;
-    private static final long AUTHOR_ID_FOR_NEW_RELATION = 8L;
-    private static final long BOOK_ID_FOR_NEW_RELATION = 12L;
-    private static final long AUTHOR_ID_FOR_DELETE_RELATION = 1L;
-    private static final long BOOK_ID_FOR_DELETE_RELATION = 11L;
 
     @Autowired
     private AuthorDaoJdbc jdbc;
@@ -160,27 +156,8 @@ class AuthorDaoJdbcTest {
     @DisplayName("подтверждать наличие связей автора по его id с книгами в таблице book_author")
     @Test
     void shouldReturnSignExistenceRelationByAuthorId() {
-        val actual = jdbc.existRelationById(DEFAULT_AUTHOR_ID);
+        val actual = jdbc.existBooksForAuthor(DEFAULT_AUTHOR_ID);
         assertThat(actual).isTrue();
     }
 
-    @DisplayName("добавлять связь между автором и книгой в таблицу book_author")
-    @Test
-    void shouldAddRelationByBookIdAndAuthorId() {
-        val current = jdbc.existRelationById(AUTHOR_ID_FOR_NEW_RELATION);
-        assertThat(current).isFalse();
-        jdbc.insertRelation(BOOK_ID_FOR_NEW_RELATION, AUTHOR_ID_FOR_NEW_RELATION);
-        val actual = jdbc.existRelationById(AUTHOR_ID_FOR_NEW_RELATION);
-        assertThat(actual).isTrue();
-    }
-
-    @DisplayName("удалять связь между автором и книгой в таблице book_author")
-    @Test
-    void shouldDeleteRelationByBookIdAndAuthorId() {
-        val current = jdbc.existRelationById(AUTHOR_ID_FOR_DELETE_RELATION);
-        assertThat(current).isTrue();
-        jdbc.deleteRelation(BOOK_ID_FOR_DELETE_RELATION, AUTHOR_ID_FOR_DELETE_RELATION);
-        val actual = jdbc.existRelationById(AUTHOR_ID_FOR_DELETE_RELATION);
-        assertThat(actual).isFalse();
-    }
 }

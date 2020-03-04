@@ -2,7 +2,7 @@ package ru.kusoft.library.events;
 
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
-import ru.kusoft.library.domain.Relation;
+import ru.kusoft.library.dao.ext.Relation;
 
 public class ReturnBookEvent extends ApplicationEvent {
 
