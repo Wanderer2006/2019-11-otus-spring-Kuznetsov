@@ -1,12 +1,17 @@
 package ru.kusoft.library.dao;
 
 import lombok.val;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
-import ru.kusoft.library.domain.*;
+import ru.kusoft.library.dao.ext.RelationHelper;
+import ru.kusoft.library.domain.Author;
+import ru.kusoft.library.domain.Book;
+import ru.kusoft.library.domain.Genre;
+import ru.kusoft.library.domain.Publisher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Репозиторий на основе Jdbc для работы с посетителями должен ")
 @JdbcTest
-@Import({BookDaoJdbc.class, AuthorDaoJdbc.class, GenreDaoJdbc.class})
+@Import({BookDaoJdbc.class, AuthorDaoJdbc.class, GenreDaoJdbc.class, RelationHelper.class})
 class BookDaoJdbcTest {
-
     private static final int EXPECTED_BOOKS_COUNT = 12;
     private static final long NEW_BOOK_ID = 13L;
     private static final String NEW_BOOK_TITLE = "Русские народные сказки";
@@ -36,9 +40,25 @@ class BookDaoJdbcTest {
     private static final long GENRE_ID_FOR_NEW_RELATION = 6L;
     private static final long GENRE_ID_FOR_DELETE_RELATION = 1L;
     private static final long BOOK_ID_FOR_DELETE_GENRE_RELATION = 10L;
+    private static final int ZERO_COUNT = 0;
+
+    private static final String BOOK_AUTHOR_NAME_RELATION_TABLE = "book_author";
+    private static final String BOOK_GENRE_NAME_RELATION_TABLE = "book_genre";
 
     @Autowired
     private BookDaoJdbc jdbc;
+
+    @Autowired
+    private RelationHelper bookAuthorRelation;
+
+    @Autowired
+    private RelationHelper bookGenreRelation;
+
+    @BeforeEach
+    void setUp() {
+        bookAuthorRelation.setNameRelationTable(BOOK_AUTHOR_NAME_RELATION_TABLE);
+        bookGenreRelation.setNameRelationTable(BOOK_GENRE_NAME_RELATION_TABLE);
+    }
 
     @DisplayName("возвращать ожидаемое количество книг в БД")
     @Test
@@ -117,41 +137,41 @@ class BookDaoJdbcTest {
     @DisplayName("добавлять связь между автором и книгой в таблицу book_author")
     @Test
     void shouldAddRelationByBookIdAndAuthorId() {
-        val current = jdbc.getAuthorDao().existBooksForAuthor(AUTHOR_ID_FOR_NEW_RELATION);
-        assertThat(current).isFalse();
+        val current = bookAuthorRelation.countByRightId(AUTHOR_ID_FOR_NEW_RELATION);
+        assertThat(current).isEqualTo(ZERO_COUNT);
         jdbc.addAuthorForBook(BOOK_ID_FOR_NEW_RELATION, AUTHOR_ID_FOR_NEW_RELATION);
-        val actual = jdbc.getAuthorDao().existBooksForAuthor(AUTHOR_ID_FOR_NEW_RELATION);
-        assertThat(actual).isTrue();
+        val actual = bookAuthorRelation.countByRightId(AUTHOR_ID_FOR_NEW_RELATION);
+        assertThat(actual).isGreaterThan(ZERO_COUNT);
     }
 
     @DisplayName("удалять связь между автором и книгой в таблице book_author")
     @Test
     void shouldDeleteRelationByBookIdAndAuthorId() {
-        val current = jdbc.getAuthorDao().existBooksForAuthor(AUTHOR_ID_FOR_DELETE_RELATION);
-        assertThat(current).isTrue();
+        val current = bookAuthorRelation.countByRightId(AUTHOR_ID_FOR_DELETE_RELATION);
+        assertThat(current).isGreaterThan(ZERO_COUNT);
         jdbc.deleteAuthorForBook(BOOK_ID_FOR_DELETE_AUTHOR_RELATION, AUTHOR_ID_FOR_DELETE_RELATION);
-        val actual = jdbc.getAuthorDao().existBooksForAuthor(AUTHOR_ID_FOR_DELETE_RELATION);
-        assertThat(actual).isFalse();
+        val actual = bookAuthorRelation.countByRightId(AUTHOR_ID_FOR_DELETE_RELATION);
+        assertThat(actual).isEqualTo(ZERO_COUNT);
     }
 
     @DisplayName("добавлять связь между жанром и книгой в таблицу book_genre")
     @Test
     void shouldAddRelationByBookIdAndGenreId() {
-        val current = jdbc.getGenreDao().existBooksForGenre(GENRE_ID_FOR_NEW_RELATION);
-        assertThat(current).isFalse();
+        val current = bookGenreRelation.countByRightId(GENRE_ID_FOR_NEW_RELATION);
+        assertThat(current).isEqualTo(ZERO_COUNT);
         jdbc.addGenreForBook(BOOK_ID_FOR_NEW_RELATION, GENRE_ID_FOR_NEW_RELATION);
-        val actual = jdbc.getGenreDao().existBooksForGenre(GENRE_ID_FOR_NEW_RELATION);
-        assertThat(actual).isTrue();
+        val actual = bookGenreRelation.countByRightId(GENRE_ID_FOR_NEW_RELATION);
+        assertThat(actual).isGreaterThan(ZERO_COUNT);
     }
 
     @DisplayName("удалять связь между жанром и книгой в таблице book_genre")
     @Test
     void shouldDeleteRelationByBookIdAndGenreId() {
-        val current = jdbc.getGenreDao().existBooksForGenre(GENRE_ID_FOR_DELETE_RELATION);
-        assertThat(current).isTrue();
+        val current = bookGenreRelation.countByRightId(GENRE_ID_FOR_DELETE_RELATION);
+        assertThat(current).isGreaterThan(ZERO_COUNT);
         jdbc.deleteGenreForBook(BOOK_ID_FOR_DELETE_GENRE_RELATION, GENRE_ID_FOR_DELETE_RELATION);
-        val actual = jdbc.getGenreDao().existBooksForGenre(GENRE_ID_FOR_DELETE_RELATION);
-        assertThat(actual).isFalse();
+        val actual = bookGenreRelation.countByRightId(GENRE_ID_FOR_DELETE_RELATION);
+        assertThat(actual).isEqualTo(ZERO_COUNT);
     }
 
 }

@@ -29,11 +29,6 @@ class VisitorDaoJdbcTest {
     private static final int EXPECTED_USED_VISITORS_COUNT = 4;
     private static final long LINKED_BOOK_ID = 5L;
     private static final int EXPECTED_LINKED_VISITORS_COUNT = 2;
-    private static final int EXPECTED_RELATIONS_COUNT = 9;
-    private static final long VISITOR_ID_FOR_NEW_RELATION = 5L;
-    private static final long BOOK_ID_FOR_NEW_RELATION = 12L;
-    private static final long VISITOR_ID_FOR_DELETE_RELATION = 4L;
-    private static final long BOOK_ID_FOR_DELETE_RELATION = 11L;
 
     @Autowired
     private VisitorDaoJdbc jdbc;
@@ -129,40 +124,5 @@ class VisitorDaoJdbcTest {
         jdbc.deleteById(EXPECTED_VISITORS_COUNT);
         assertThat(jdbc.existById(EXPECTED_VISITORS_COUNT)).isFalse();
     }
-
-    @DisplayName("загружать список всех связей из таблицы visitor_book")
-    @Test
-    void shouldReturnCorrectRelationList() {
-        val relations = jdbc.getAllRelations();
-        assertThat(relations).isNotNull().hasSize(EXPECTED_RELATIONS_COUNT);
-    }
-
-    @DisplayName("подтверждать наличие связей посетителя по его id с книгами в таблице book_author")
-    @Test
-    void shouldReturnSignExistenceRelationByVisitorId() {
-        val actual = jdbc.existBookAtVisitor(DEFAULT_VISITOR_ID);
-        assertThat(actual).isTrue();
-    }
-
-    @DisplayName("добавлять связь между посетителем и книгой в таблицу book_author")
-    @Test
-    void shouldAddRelationByBookIdAndVisitorId() {
-        val current = jdbc.existBookAtVisitor(VISITOR_ID_FOR_NEW_RELATION);
-        assertThat(current).isFalse();
-        jdbc.addBookForVisitor(BOOK_ID_FOR_NEW_RELATION, VISITOR_ID_FOR_NEW_RELATION);
-        val actual = jdbc.existBookAtVisitor(VISITOR_ID_FOR_NEW_RELATION);
-        assertThat(actual).isTrue();
-    }
-
-    @DisplayName("удалять связь между посетителем и книгой в таблице book_author")
-    @Test
-    void shouldDeleteRelationByBookIdAndVisitorId() {
-        val current = jdbc.existBookAtVisitor(VISITOR_ID_FOR_DELETE_RELATION);
-        assertThat(current).isTrue();
-        jdbc.deleteBookForVisitor(BOOK_ID_FOR_DELETE_RELATION, VISITOR_ID_FOR_DELETE_RELATION);
-        val actual = jdbc.existBookAtVisitor(VISITOR_ID_FOR_DELETE_RELATION);
-        assertThat(actual).isFalse();
-    }
-
 
 }

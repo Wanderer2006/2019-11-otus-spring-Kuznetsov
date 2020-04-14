@@ -8,8 +8,10 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.kusoft.library.dao.ext.Relation;
+import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.*;
 
+import javax.annotation.PostConstruct;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -18,10 +20,20 @@ import java.util.stream.Collectors;
 @Data
 @Repository
 public class BookDaoJdbc implements BookDao {
+    private static final String BOOK_AUTHOR_NAME_RELATION_TABLE = "book_author";
+    private static final String BOOK_GENRE_NAME_RELATION_TABLE = "book_genre";
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
     private final AuthorDao authorDao;
     private final GenreDao genreDao;
+    private final RelationHelper bookAuthorRelation;
+    private final RelationHelper bookGenreRelation;
+
+    @PostConstruct
+    public void setNameRelationTable() {
+        bookAuthorRelation.setNameRelationTable(BOOK_AUTHOR_NAME_RELATION_TABLE);
+        bookGenreRelation.setNameRelationTable(BOOK_GENRE_NAME_RELATION_TABLE);
+    }
 
     @Override
     public long count() {
@@ -57,6 +69,7 @@ public class BookDaoJdbc implements BookDao {
         );
     }
 
+    @Override
     public boolean existById(long id) {
         Map<String, Object> params = Collections.singletonMap("id", id);
         return namedParameterJdbcOperations.queryForObject(
@@ -95,11 +108,11 @@ public class BookDaoJdbc implements BookDao {
 
     private void mergeBooksWithFullInfo(List<Book> books) {
         List<Author> authors = authorDao.getAllUsed();
-        List<Relation> relationsBookAuthor = authorDao.getAllRelations();
+        List<Relation> relationsBookAuthor = bookAuthorRelation.getAll();
         mergeBooksWithAuthors(books, authors, relationsBookAuthor);
 
         List<Genre> genres = genreDao.getAllUsed();
-        List<Relation> relationsBookGenre = genreDao.getAllRelations();
+        List<Relation> relationsBookGenre = bookGenreRelation.getAll();
         mergeBooksWithGenres(books, genres, relationsBookGenre);
     }
 
@@ -133,22 +146,22 @@ public class BookDaoJdbc implements BookDao {
 
     @Override
     public void addAuthorForBook(long bookId, long authorId) {
-        authorDao.getBookAuthorRelation().insert(new Relation(bookId, authorId));
+        bookAuthorRelation.insert(new Relation(bookId, authorId));
     }
 
     @Override
     public void deleteAuthorForBook(long bookId, long authorId) {
-        authorDao.getBookAuthorRelation().delete(new Relation(bookId, authorId));
+        bookAuthorRelation.delete(new Relation(bookId, authorId));
     }
 
     @Override
     public void addGenreForBook(long bookId, long genreId) {
-        genreDao.getBookGenreRelation().insert(new Relation(bookId, genreId));
+        bookGenreRelation.insert(new Relation(bookId, genreId));
     }
 
     @Override
     public void deleteGenreForBook(long bookId, long genreId) {
-        genreDao.getBookGenreRelation().delete(new Relation(bookId, genreId));
+        bookGenreRelation.delete(new Relation(bookId, genreId));
     }
 
     private static class BookMapper implements RowMapper<Book> {

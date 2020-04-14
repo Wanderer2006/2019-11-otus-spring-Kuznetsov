@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.kusoft.library.dao.BookDao;
 import ru.kusoft.library.dao.VisitorDao;
 import ru.kusoft.library.dao.ext.Relation;
+import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.*;
 
 import java.util.ArrayList;
@@ -63,6 +64,8 @@ class BookServiceImplTest {
     private static final Relation ISSUED_RELATION = new Relation(ISSUED_VISITOR_ID, BOOK_ID);
     private static final Relation NOT_ISSUED_RELATION = new Relation(NOT_ISSUED_VISITOR_ID, BOOK_ID);
 
+    private static final String VISITOR_BOOK_NAME_RELATION_TABLE = "visitor_book";
+
     @MockBean
     private BookDao bookDao;
 
@@ -80,6 +83,9 @@ class BookServiceImplTest {
 
     @MockBean
     private GenreService genreService;
+
+    @MockBean
+    private RelationHelper visitorBookRelation;
 
     @Autowired
     private BookService bookService;
@@ -116,7 +122,7 @@ class BookServiceImplTest {
         }};
         given(bookDao.getAllFullInfo()).willReturn(bookList);
         given(visitorDao.getAllUsed()).willReturn(visitorList);
-        given(visitorDao.getAllRelations()).willReturn(relationList);
+        given(visitorBookRelation.getAll()).willReturn(relationList);
         bookService.showAllBooksFullInfo();
         verify(bookDao, times(1)).getAllFullInfo();
         verify(io, times(1)).print(anyString(), anyString(), anyString(), anyString(), anyString(),
@@ -129,10 +135,10 @@ class BookServiceImplTest {
             "(все экземпляры на руках)")
     void shouldNotGiveOutBookAllIssued() {
         given(bookDao.getById(BOOK_ID)).willReturn(BOOK_MATCH_AGE);
-        given(visitorDao.countVisitorWithBook(BOOK_ID)).willReturn(Long.valueOf(COPIES));
+        given(visitorBookRelation.countByRightId(BOOK_ID)).willReturn(Long.valueOf(COPIES));
         bookService.giveOutBook(ISSUED_RELATION);
         verify(io, times(1)).println(anyString());
-        verify(visitorDao, times(0)).addBookForVisitor(BOOK_ID, ISSUED_VISITOR_ID);
+        verify(visitorBookRelation, times(0)).insert(new Relation(BOOK_ID, ISSUED_VISITOR_ID));
     }
 
     @Test
@@ -140,11 +146,11 @@ class BookServiceImplTest {
             "(возраст не соответствует)")
     void shouldNotGiveOutBookNotMatchAge() {
         given(bookDao.getById(BOOK_ID)).willReturn(BOOK_NOT_MATCH_AGE);
-        given(visitorDao.countVisitorWithBook(BOOK_ID)).willReturn(Long.valueOf(COPIES - 1));
+        given(visitorBookRelation.countByRightId(BOOK_ID)).willReturn(Long.valueOf(COPIES - 1));
         given(visitorDao.getById(ISSUED_VISITOR_ID)).willReturn(VISITOR);
         bookService.giveOutBook(ISSUED_RELATION);
         verify(io, times(1)).println(anyString());
-        verify(visitorDao, times(0)).addBookForVisitor(BOOK_ID, ISSUED_VISITOR_ID);
+        verify(visitorBookRelation, times(0)).insert(new Relation(BOOK_ID, ISSUED_VISITOR_ID));
     }
 
     @Test
@@ -152,10 +158,10 @@ class BookServiceImplTest {
             "(все условия соблюдены)")
     void shouldGiveOutBook() {
         given(bookDao.getById(BOOK_ID)).willReturn(BOOK_MATCH_AGE);
-        given(visitorDao.countVisitorWithBook(BOOK_ID)).willReturn(Long.valueOf(COPIES - 1));
+        given(visitorBookRelation.countByRightId(BOOK_ID)).willReturn(Long.valueOf(COPIES - 1));
         given(visitorDao.getById(ISSUED_VISITOR_ID)).willReturn(VISITOR);
         bookService.giveOutBook(ISSUED_RELATION);
-        verify(visitorDao, times(1)).addBookForVisitor(BOOK_ID, ISSUED_VISITOR_ID);
+        verify(visitorBookRelation, times(1)).insert(any(Relation.class));
         verify(io, times(1)).println(anyString());
     }
 
@@ -163,10 +169,10 @@ class BookServiceImplTest {
     @DisplayName("вызывать методы visitorDao и io с нужными параметрами. Текущий метод: returnBook " +
             "(все экземпляры в библиотеке)")
     void shouldNotReturnBookNotIssued() {
-        given(visitorDao.existVisitorWithBook(anyLong())).willReturn(false);
+        given(visitorBookRelation.countByRightId(anyLong())).willReturn(0L);
         bookService.returnBook(ISSUED_RELATION);
         verify(io, times(1)).println(anyString());
-        verify(visitorDao, times(0)).deleteBookForVisitor(BOOK_ID, ISSUED_VISITOR_ID);
+        verify(visitorBookRelation, times(0)).delete(new Relation(BOOK_ID, ISSUED_VISITOR_ID));
     }
 
     @Test
@@ -176,11 +182,11 @@ class BookServiceImplTest {
         List<Visitor> visitorList = new ArrayList<Visitor>() {{
             add(VISITOR);
         }};
-        given(visitorDao.existVisitorWithBook(anyLong())).willReturn(true);
+        given(visitorBookRelation.countByRightId(anyLong())).willReturn(1L);
         given(visitorDao.getVisitorsByBookId(anyLong())).willReturn(visitorList);
         bookService.returnBook(NOT_ISSUED_RELATION);
         verify(io, times(1)).println(anyString());
-        verify(visitorDao, times(0)).deleteBookForVisitor(BOOK_ID, NOT_ISSUED_VISITOR_ID);
+        verify(visitorBookRelation, times(0)).delete(new Relation(BOOK_ID, NOT_ISSUED_VISITOR_ID));
     }
 
     @Test
@@ -190,11 +196,11 @@ class BookServiceImplTest {
         List<Visitor> visitorList = new ArrayList<Visitor>() {{
             add(VISITOR);
         }};
-        given(visitorDao.existVisitorWithBook(anyLong())).willReturn(true);
+        given(visitorBookRelation.countByRightId(anyLong())).willReturn(1L);
         given(visitorDao.getVisitorsByBookId(anyLong())).willReturn(visitorList);
         bookService.returnBook(ISSUED_RELATION);
         verify(io, times(1)).println(anyString());
-        verify(visitorDao, times(1)).deleteBookForVisitor(BOOK_ID, ISSUED_VISITOR_ID);
+        verify(visitorBookRelation, times(1)).delete(new Relation(ISSUED_VISITOR_ID, BOOK_ID));
     }
 
     @Test

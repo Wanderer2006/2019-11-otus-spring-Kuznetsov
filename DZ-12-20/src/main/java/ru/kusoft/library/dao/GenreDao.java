@@ -1,8 +1,6 @@
 package ru.kusoft.library.dao;
 
-import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Genre;
-import ru.kusoft.library.dao.ext.Relation;
 
 import java.util.List;
 
@@ -27,10 +25,4 @@ public interface GenreDao {
     List<Genre> getGenresByBookId(long id);
 
     void deleteById(long id);
-
-    List<Relation> getAllRelations();
-
-    boolean existBooksForGenre(long id);
-
-    RelationHelper getBookGenreRelation();
 }

@@ -23,7 +23,6 @@ class GenreDaoJdbcTest {
     private static final int EXPECTED_USED_GENRES_COUNT = 5;
     private static final long LINKED_BOOK_ID = 5L;
     private static final int EXPECTED_LINKED_GENRES_COUNT = 2;
-    private static final int EXPECTED_RELATIONS_COUNT = 22;
 
     @Autowired
     private GenreDaoJdbc jdbc;
@@ -116,20 +115,6 @@ class GenreDaoJdbcTest {
     void shouldDeleteGenreById() {
         jdbc.deleteById(EXPECTED_GENRES_COUNT);
         assertThat(jdbc.existById(EXPECTED_GENRES_COUNT)).isFalse();
-    }
-
-    @DisplayName("загружать список всех связей из таблицы book_genre")
-    @Test
-    void shouldReturnCorrectRelationList() {
-        val relations = jdbc.getAllRelations();
-        assertThat(relations).isNotNull().hasSize(EXPECTED_RELATIONS_COUNT);
-    }
-
-    @DisplayName("подтверждать наличие связей жанра по его id с книгами в таблице book_genre")
-    @Test
-    void shouldReturnSignExistenceRelationByGenreId() {
-        val actual = jdbc.existBooksForGenre(DEFAULT_GENRE_ID);
-        assertThat(actual).isTrue();
     }
 
 }

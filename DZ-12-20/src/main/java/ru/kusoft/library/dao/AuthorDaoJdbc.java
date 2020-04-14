@@ -1,15 +1,13 @@
 package ru.kusoft.library.dao;
 
-import lombok.Getter;
+import lombok.Data;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Author;
-import ru.kusoft.library.dao.ext.Relation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,19 +17,11 @@ import java.util.Map;
 
 import static org.apache.logging.log4j.util.Strings.isNotBlank;
 
-
+@Data
 @Repository
 public class AuthorDaoJdbc implements AuthorDao {
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-
-    @Getter
-    private final RelationHelper bookAuthorRelation;
-
-    public AuthorDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations) {
-        this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.bookAuthorRelation = new RelationHelper(namedParameterJdbcOperations, "book_author");
-    }
 
     @Override
     public long count() {
@@ -135,16 +125,6 @@ public class AuthorDaoJdbc implements AuthorDao {
         namedParameterJdbcOperations.update(
                 "delete from authors where author_id = :id", params
         );
-    }
-
-    @Override
-    public List<Relation> getAllRelations() {
-        return bookAuthorRelation.getAll();
-    }
-
-    @Override
-    public boolean existBooksForAuthor(long id) {
-        return bookAuthorRelation.countByRightId(id) > 0;
     }
 
     private static class AuthorMapper implements RowMapper<Author> {

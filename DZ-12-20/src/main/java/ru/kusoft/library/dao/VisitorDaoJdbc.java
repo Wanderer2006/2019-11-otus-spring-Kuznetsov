@@ -1,13 +1,12 @@
 package ru.kusoft.library.dao;
 
+import lombok.Data;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.kusoft.library.dao.ext.Relation;
-import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Visitor;
 
 import java.sql.ResultSet;
@@ -16,16 +15,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+@Data
 @Repository
 public class VisitorDaoJdbc implements VisitorDao {
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final RelationHelper visitorBookRelation;
-
-    public VisitorDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations) {
-        this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.visitorBookRelation = new RelationHelper(namedParameterJdbcOperations, "visitor_book");
-    }
 
     @Override
     public long count() {
@@ -125,41 +119,6 @@ public class VisitorDaoJdbc implements VisitorDao {
         namedParameterJdbcOperations.update(
                 "delete from visitors where visitor_id = :id", params
         );
-    }
-
-    @Override
-    public List<Relation> getAllRelations() {
-        return visitorBookRelation.getAll();
-    }
-
-    @Override
-    public long countBookAtVisitor(long id) {
-        return visitorBookRelation.countByLeftId(id);
-    }
-
-    @Override
-    public boolean existBookAtVisitor(long id) {
-        return countBookAtVisitor(id) > 0;
-    }
-
-    @Override
-    public long countVisitorWithBook(long id) {
-        return visitorBookRelation.countByRightId(id);
-    }
-
-    @Override
-    public boolean existVisitorWithBook(long id) {
-        return countVisitorWithBook(id) > 0;
-    }
-
-    @Override
-    public void addBookForVisitor(long bookId, long visitorId) {
-        visitorBookRelation.insert(new Relation(visitorId, bookId));
-    }
-
-    @Override
-    public void deleteBookForVisitor(long bookId, long visitorId) {
-        visitorBookRelation.delete(new Relation(visitorId, bookId));
     }
 
     private static class VisitorMapper implements RowMapper<Visitor> {

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.kusoft.library.dao.AuthorDao;
+import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Author;
 
 import java.util.ArrayList;
@@ -31,6 +32,9 @@ class AuthorServiceImplTest {
 
     @MockBean
     private IOService io;
+
+    @MockBean
+    private RelationHelper bookAuthorRelation;
 
 /*    @Mock
     private List<Author> authorList;*/
@@ -86,9 +90,9 @@ class AuthorServiceImplTest {
     @DisplayName("вызывать методы authorDao и io с нужными параметрами. Текущий метод: deleteAuthorById " +
             "(id автора привязан к книге)")
     void shouldNotDeleteLibraryBookAuthorById() {
-        given(authorDao.existBooksForAuthor(anyLong())).willReturn(true);
+        given(bookAuthorRelation.countByRightId(anyLong())).willReturn(1L);
         authorService.deleteAuthorById(100L);
-        verify(authorDao, times(1)).existBooksForAuthor(100L);
+        verify(bookAuthorRelation, times(1)).countByRightId(100L);
         verify(io, times(1)).println(anyString());
         verify(authorDao, times(0)).deleteById(100L);
     }
@@ -97,9 +101,9 @@ class AuthorServiceImplTest {
     @DisplayName("вызывать методы authorDao и io с нужными параметрами. Текущий метод: deleteAuthorById " +
             "(id автора не привязан к книге)")
     void shouldDeleteUnattachedAuthorById() {
-        given(authorDao.existBooksForAuthor(anyLong())).willReturn(false);
+        given(bookAuthorRelation.countByRightId(100L)).willReturn(0L);
         authorService.deleteAuthorById(100L);
-        verify(authorDao, times(1)).existBooksForAuthor(100L);
+        verify(bookAuthorRelation, times(1)).countByRightId(100L);
         verify(io, times(1)).println(anyString());
         verify(authorDao, times(1)).deleteById(100L);
     }

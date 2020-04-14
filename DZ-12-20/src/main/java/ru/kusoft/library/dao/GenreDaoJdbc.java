@@ -1,15 +1,13 @@
 package ru.kusoft.library.dao;
 
-import lombok.Getter;
+import lombok.Data;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Genre;
-import ru.kusoft.library.dao.ext.Relation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,18 +15,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+@Data
 @Repository
 public class GenreDaoJdbc implements GenreDao {
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-
-    @Getter
-    private final RelationHelper bookGenreRelation;
-
-    public GenreDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations) {
-        this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.bookGenreRelation = new RelationHelper(namedParameterJdbcOperations, "book_genre");
-    }
 
     @Override
     public long count() {
@@ -111,16 +102,6 @@ public class GenreDaoJdbc implements GenreDao {
         namedParameterJdbcOperations.update(
                 "delete from genres where genre_id = :id", params
         );
-    }
-
-    @Override
-    public List<Relation> getAllRelations() {
-        return bookGenreRelation.getAll();
-    }
-
-    @Override
-    public boolean existBooksForGenre(long id) {
-        return bookGenreRelation.countByRightId(id) > 0;
     }
 
     private static class GenreMapper implements RowMapper<Genre> {

@@ -4,8 +4,10 @@ import lombok.Data;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.kusoft.library.dao.AuthorDao;
+import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Author;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,9 +18,16 @@ import static org.apache.logging.log4j.util.Strings.isNotBlank;
 public class AuthorServiceImpl implements AuthorService {
     private static final String FORMAT_HEADER = "%5s|%-40.40s%n";
     private static final String FORMAT_RECORD = "%5d|%-40.40s%n";
+    private static final String BOOK_AUTHOR_NAME_RELATION_TABLE = "book_author";
 
     private final AuthorDao authorDao;
     private final IOService io;
+    private final RelationHelper bookAuthorRelation;
+
+    @PostConstruct
+    public void setNameRelationTable() {
+        bookAuthorRelation.setNameRelationTable(BOOK_AUTHOR_NAME_RELATION_TABLE);
+    }
 
     @Override
     public void showAuthors() {
@@ -33,7 +42,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public void deleteAuthorById(Long id) {
-        if (authorDao.existBooksForAuthor(id)) {
+        if (bookAuthorRelation.countByRightId(id) > 0) {
             io.println("Нельзя удалить автора книги, принадлежащей библиотеке. Сначала удалите книгу");
         } else {
             try {

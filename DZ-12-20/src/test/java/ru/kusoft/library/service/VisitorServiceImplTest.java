@@ -6,13 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.kusoft.library.dao.VisitorDao;
+import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Visitor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -34,6 +34,9 @@ class VisitorServiceImplTest {
 
     @MockBean
     private IOService io;
+
+    @MockBean
+    private RelationHelper visitorBookRelation;
 
     @Autowired
     private VisitorService visitorService;
@@ -85,9 +88,9 @@ class VisitorServiceImplTest {
     @DisplayName("вызывать методы visitorDao и io с нужными параметрами. Текущий метод: deleteVisitorById " +
             "(id посетителя привязан к книге)")
     void shouldNotDeleteLibraryBookVisitorById() {
-        given(visitorDao.existBookAtVisitor(anyLong())).willReturn(true);
+        given(visitorBookRelation.countByLeftId(anyLong())).willReturn(1L);
         visitorService.deleteVisitorById(100L);
-        verify(visitorDao, times(1)).existBookAtVisitor(100L);
+        verify(visitorBookRelation, times(1)).countByLeftId(100L);
         verify(io, times(1)).println(anyString());
         verify(visitorDao, times(0)).deleteById(100L);
     }
@@ -96,9 +99,9 @@ class VisitorServiceImplTest {
     @DisplayName("вызывать методы visitorDao и io с нужными параметрами. Текущий метод: deleteVisitorById " +
             "(id посетителя не привязан к книге)")
     void shouldDeleteUnattachedVisitorById() {
-        given(visitorDao.existBookAtVisitor(anyLong())).willReturn(false);
+        given(visitorBookRelation.countByLeftId(anyLong())).willReturn(0L);
         visitorService.deleteVisitorById(100L);
-        verify(visitorDao, times(1)).existBookAtVisitor(100L);
+        verify(visitorBookRelation, times(1)).countByLeftId(100L);
         verify(io, times(1)).println(anyString());
         verify(visitorDao, times(1)).deleteById(100L);
     }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.kusoft.library.dao.GenreDao;
+import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Genre;
 
 import java.util.ArrayList;
@@ -29,6 +30,9 @@ class GenreServiceImplTest {
 
     @MockBean
     private IOService io;
+
+    @MockBean
+    private RelationHelper bookGenreRelation;
 
     @Autowired
     private GenreService genreService;
@@ -78,9 +82,9 @@ class GenreServiceImplTest {
     @DisplayName("вызывать методы genreDao и io с нужными параметрами. Текущий метод: deleteGenreById " +
             "(id жанра привязан к книге)")
     void shouldNotDeleteLibraryBookGenreById() {
-        given(genreDao.existBooksForGenre(anyLong())).willReturn(true);
+        given(bookGenreRelation.countByRightId(anyLong())).willReturn(1L);
         genreService.deleteGenreById(100L);
-        verify(genreDao, times(1)).existBooksForGenre(100L);
+        verify(bookGenreRelation, times(1)).countByRightId(100L);
         verify(io, times(1)).println(anyString());
         verify(genreDao, times(0)).deleteById(100L);
     }
@@ -89,9 +93,9 @@ class GenreServiceImplTest {
     @DisplayName("вызывать методы genreDao и io с нужными параметрами. Текущий метод: deleteGenreById " +
             "(id жанра не привязан к книге)")
     void shouldDeleteUnattachedGenreById() {
-        given(genreDao.existBooksForGenre(anyLong())).willReturn(false);
+        given(bookGenreRelation.countByRightId(anyLong())).willReturn(0L);
         genreService.deleteGenreById(100L);
-        verify(genreDao, times(1)).existBooksForGenre(100L);
+        verify(bookGenreRelation, times(1)).countByRightId(100L);
         verify(genreDao, times(1)).deleteById(100L);
         verify(io, times(1)).println(anyString());
     }

@@ -4,8 +4,10 @@ import lombok.Data;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.kusoft.library.dao.GenreDao;
+import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Genre;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,9 +16,16 @@ import java.util.List;
 public class GenreServiceImpl implements GenreService {
     private static final String FORMAT_HEADER = "%5s|%-40.40s%n";
     private static final String FORMAT_RECORD = "%5d|%-40.40s%n";
+    private static final String BOOK_GENRE_NAME_RELATION_TABLE = "book_genre";
 
     private final GenreDao genreDao;
     private final IOService io;
+    private final RelationHelper bookGenreRelation;
+
+    @PostConstruct
+    public void setNameRelationTable() {
+        bookGenreRelation.setNameRelationTable(BOOK_GENRE_NAME_RELATION_TABLE);
+    }
 
     @Override
     public void showGenres() {
@@ -29,7 +38,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public void deleteGenreById(Long id) {
-        if (genreDao.existBooksForGenre(id)) {
+        if (bookGenreRelation.countByRightId(id) > 0) {
             io.println("Нельзя удалить жанр книги, принадлежащей библиотеке. Сначала удалите книгу");
         } else {
             try {

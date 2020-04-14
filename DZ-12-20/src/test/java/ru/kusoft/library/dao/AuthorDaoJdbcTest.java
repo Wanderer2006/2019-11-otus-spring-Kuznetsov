@@ -29,7 +29,6 @@ class AuthorDaoJdbcTest {
     private static final String FOREIGN_AUTHOR_FIRST_NAME = "Кей";
     private static final long LINKED_BOOK_ID = 2L;
     private static final int EXPECTED_LINKED_AUTHORS_COUNT = 2;
-    private static final int EXPECTED_RELATIONS_COUNT = 12;
 
     @Autowired
     private AuthorDaoJdbc jdbc;
@@ -145,19 +144,4 @@ class AuthorDaoJdbcTest {
         jdbc.deleteById(EXPECTED_AUTHORS_COUNT);
         assertThat(jdbc.existById(EXPECTED_AUTHORS_COUNT)).isFalse();
     }
-
-    @DisplayName("загружать список всех связей из таблицы book_author")
-    @Test
-    void shouldReturnCorrectRelationList() {
-        val relations = jdbc.getAllRelations();
-        assertThat(relations).isNotNull().hasSize(EXPECTED_RELATIONS_COUNT);
-    }
-
-    @DisplayName("подтверждать наличие связей автора по его id с книгами в таблице book_author")
-    @Test
-    void shouldReturnSignExistenceRelationByAuthorId() {
-        val actual = jdbc.existBooksForAuthor(DEFAULT_AUTHOR_ID);
-        assertThat(actual).isTrue();
-    }
-
 }

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,10 +16,11 @@ import java.util.Map;
 
 @Data
 @Scope("prototype")
+@Component
 public class RelationHelper {
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final String nameRelationTable;
+    private String nameRelationTable;
 
     public long count() {
         return namedParameterJdbcOperations.queryForObject(
