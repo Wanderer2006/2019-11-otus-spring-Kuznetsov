@@ -1,16 +1,13 @@
 package ru.kusoft.library.service;
 
-import lombok.Data;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.kusoft.library.dao.VisitorDao;
 import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Visitor;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
-@Data
 @Service
 public class VisitorServiceImpl implements VisitorService {
     private static final String FORMAT_HEADER = "%5s|%-40.40s%n";
@@ -21,9 +18,11 @@ public class VisitorServiceImpl implements VisitorService {
     private final IOService io;
     private final RelationHelper visitorBookRelation;
 
-    @PostConstruct
-    public void setNameRelationTable() {
-        visitorBookRelation.setNameRelationTable(VISITOR_BOOK_NAME_RELATION_TABLE);
+    public VisitorServiceImpl(VisitorDao visitorDao, IOService io, RelationHelper visitorBookRelation) {
+        this.visitorDao = visitorDao;
+        this.io = io;
+        this.visitorBookRelation = visitorBookRelation;
+        this.visitorBookRelation.setNameRelationTable(VISITOR_BOOK_NAME_RELATION_TABLE);
     }
 
     @Override

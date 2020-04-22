@@ -1,6 +1,5 @@
 package ru.kusoft.library.dao;
 
-import lombok.Data;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -9,15 +8,16 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.kusoft.library.dao.ext.Relation;
 import ru.kusoft.library.dao.ext.RelationHelper;
-import ru.kusoft.library.domain.*;
+import ru.kusoft.library.domain.Author;
+import ru.kusoft.library.domain.Book;
+import ru.kusoft.library.domain.Genre;
+import ru.kusoft.library.domain.Publisher;
 
-import javax.annotation.PostConstruct;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Data
 @Repository
 public class BookDaoJdbc implements BookDao {
     private static final String BOOK_AUTHOR_NAME_RELATION_TABLE = "book_author";
@@ -29,10 +29,15 @@ public class BookDaoJdbc implements BookDao {
     private final RelationHelper bookAuthorRelation;
     private final RelationHelper bookGenreRelation;
 
-    @PostConstruct
-    public void setNameRelationTable() {
-        bookAuthorRelation.setNameRelationTable(BOOK_AUTHOR_NAME_RELATION_TABLE);
-        bookGenreRelation.setNameRelationTable(BOOK_GENRE_NAME_RELATION_TABLE);
+    public BookDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations, AuthorDao authorDao, GenreDao genreDao,
+                       RelationHelper bookAuthorRelation, RelationHelper bookGenreRelation) {
+        this.namedParameterJdbcOperations = namedParameterJdbcOperations;
+        this.authorDao = authorDao;
+        this.genreDao = genreDao;
+        this.bookAuthorRelation = bookAuthorRelation;
+        this.bookAuthorRelation.setNameRelationTable(BOOK_AUTHOR_NAME_RELATION_TABLE);
+        this.bookGenreRelation = bookGenreRelation;
+        this.bookGenreRelation.setNameRelationTable(BOOK_GENRE_NAME_RELATION_TABLE);
     }
 
     @Override

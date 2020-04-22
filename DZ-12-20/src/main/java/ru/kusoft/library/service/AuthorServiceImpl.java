@@ -1,19 +1,16 @@
 package ru.kusoft.library.service;
 
-import lombok.Data;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.kusoft.library.dao.AuthorDao;
 import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Author;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.logging.log4j.util.Strings.isNotBlank;
 
-@Data
 @Service
 public class AuthorServiceImpl implements AuthorService {
     private static final String FORMAT_HEADER = "%5s|%-40.40s%n";
@@ -24,9 +21,11 @@ public class AuthorServiceImpl implements AuthorService {
     private final IOService io;
     private final RelationHelper bookAuthorRelation;
 
-    @PostConstruct
-    public void setNameRelationTable() {
-        bookAuthorRelation.setNameRelationTable(BOOK_AUTHOR_NAME_RELATION_TABLE);
+    public AuthorServiceImpl(AuthorDao authorDao, IOService io, RelationHelper bookAuthorRelation) {
+        this.authorDao = authorDao;
+        this.io = io;
+        this.bookAuthorRelation = bookAuthorRelation;
+        this.bookAuthorRelation.setNameRelationTable(BOOK_AUTHOR_NAME_RELATION_TABLE);
     }
 
     @Override

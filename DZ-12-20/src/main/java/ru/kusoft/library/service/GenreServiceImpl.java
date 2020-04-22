@@ -1,17 +1,14 @@
 package ru.kusoft.library.service;
 
-import lombok.Data;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.kusoft.library.dao.GenreDao;
 import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.Genre;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @Service
 public class GenreServiceImpl implements GenreService {
     private static final String FORMAT_HEADER = "%5s|%-40.40s%n";
@@ -22,9 +19,11 @@ public class GenreServiceImpl implements GenreService {
     private final IOService io;
     private final RelationHelper bookGenreRelation;
 
-    @PostConstruct
-    public void setNameRelationTable() {
-        bookGenreRelation.setNameRelationTable(BOOK_GENRE_NAME_RELATION_TABLE);
+    public GenreServiceImpl(GenreDao genreDao, IOService io, RelationHelper bookGenreRelation) {
+        this.genreDao = genreDao;
+        this.io = io;
+        this.bookGenreRelation = bookGenreRelation;
+        this.bookGenreRelation.setNameRelationTable(BOOK_GENRE_NAME_RELATION_TABLE);
     }
 
     @Override

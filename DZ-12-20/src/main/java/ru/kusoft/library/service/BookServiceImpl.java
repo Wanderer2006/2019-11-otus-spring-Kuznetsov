@@ -1,6 +1,5 @@
 package ru.kusoft.library.service;
 
-import lombok.Data;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.kusoft.library.dao.BookDao;
@@ -9,12 +8,10 @@ import ru.kusoft.library.dao.ext.Relation;
 import ru.kusoft.library.dao.ext.RelationHelper;
 import ru.kusoft.library.domain.*;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Data
 @Service
 public class BookServiceImpl implements BookService {
     private static final String FORMAT_BOOK_SHORT_LIST_HEADER = "%5s|%-80.80s|%6s|%-15.15s|%4s|%7s|%7s%n";
@@ -31,9 +28,16 @@ public class BookServiceImpl implements BookService {
     private final GenreService genreService;
     private final RelationHelper visitorBookRelation;
 
-    @PostConstruct
-    public void setNameRelationTable() {
-        visitorBookRelation.setNameRelationTable(VISITOR_BOOK_NAME_RELATION_TABLE);
+    public BookServiceImpl(BookDao bookDao, VisitorDao visitorDao, IOService io, PublisherService publisherService,
+                           AuthorService authorService, GenreService genreService, RelationHelper visitorBookRelation) {
+        this.bookDao = bookDao;
+        this.visitorDao = visitorDao;
+        this.io = io;
+        this.publisherService = publisherService;
+        this.authorService = authorService;
+        this.genreService = genreService;
+        this.visitorBookRelation = visitorBookRelation;
+        this.visitorBookRelation.setNameRelationTable(VISITOR_BOOK_NAME_RELATION_TABLE);
     }
 
     @Override
